@@ -10,6 +10,7 @@
  const (
      orcaNetPath string = "../OrcaNet/OrcaNet"
      btcctlPath string = "../OrcaNet/cmd/btcctl/btcctl"
+     orcaWalletPath string = "../OrcaWallet/btcwallet"
  )
  //startOrcaNet: starts the OrcaNet full node
 func Start() error {
@@ -30,7 +31,26 @@ func Start() error {
     }
     fmt.Println("OrcaNet started successfully")
     return nil
-} 
+}
+
+//startOrcaWallet: starts the OrcaWallet
+func StartOrcaWallet() error {
+    // check for the existence of the executable 
+    _, err := os.Stat(orcaWalletPath)
+    if os.IsNotExist(err) {
+        fmt.Println("Cannot find Orcawallet executable")
+        return err
+    }
+
+    cmd := exec.Command(orcaWalletPath)
+    if err := cmd.Start(); err != nil {
+        fmt.Println(err)
+        fmt.Println("failed to start wallet executable")
+        return nil
+    }
+    fmt.Println("Wallet started successfully")
+    return nil
+}
 
 // callBtcctlCmd: calls a Btcctl command Exactly as specified in string param, and returns the stdout of btcctl as a string 
 // its a singular string, but you can pass as many arguments, we will split the arguments in this fn
