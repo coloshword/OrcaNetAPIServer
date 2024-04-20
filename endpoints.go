@@ -35,7 +35,16 @@ func getBlockchainInfo(w http.ResponseWriter, r *http.Request) {
 // For security purposes, it is recommended to create a new address everytime 
 func getNewAddress(w http.ResponseWriter, r *http.Request) {
     fmt.Println("getNewAddress request")
-    const command string = "getnewaddress --wallet" // flags come first 
+    const command string = "getnewaddress --wallet"
+    stdout, err := manageOrcaNet.CallBtcctlCmd(command)
+    fmt.Println(err)
+    io.WriteString(w, stdout)
+}
+
+// getBalance: gets the balance of the wallet 
+func getBalance(w http.ResponseWriter, r *http.Request) {
+    fmt.Println("getBalance endpoint")
+    const command string = "getbalance --wallet"
     stdout, err := manageOrcaNet.CallBtcctlCmd(command)
     fmt.Println(err)
     io.WriteString(w, stdout)
