@@ -18,11 +18,12 @@ func Start() error {
 
     // we know it exists 
     cmd := exec.Command(path)
-    if err := cmd.Run(); err != nil {
+    if err := cmd.Start();  err != nil {
         fmt.Println(err)
         fmt.Println("failed to run")
         return nil
     }
+    fmt.Println("OrcaNet started successfully")
     return nil 
 } 
 
