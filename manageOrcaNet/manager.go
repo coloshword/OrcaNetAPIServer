@@ -54,18 +54,17 @@ func StartOrcaWallet() error {
 
 // callBtcctlCmd: calls a Btcctl command Exactly as specified in string param, and returns the stdout of btcctl as a string 
 // its a singular string, but you can pass as many arguments, we will split the arguments in this fn
-func CallBtcctlCmd(cmdStr string) string {
+func CallBtcctlCmd(cmdStr string) (string, error) {
     params :=  strings.Split(cmdStr, " ") 
     fmt.Println(params)
     cmd := exec.Command(btcctlPath, params...)
     // get the stdout of cmd, CAN HANG but shouldn't be a problem in a btcctl command
     stdout, err := cmd.CombinedOutput() 
     if err != nil {
-        fmt.Println("failed to execute Btcctl command")
-        return ""
+        return "", fmt.Errorf("failed to execute btcctl commands '%s': %s, error: %v", cmdStr, stdout, err)
     }
     fmt.Println(err);
-    return string(stdout)
+    return string(stdout), nil
 }
 
 
