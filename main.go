@@ -26,9 +26,10 @@ func getHello(w http.ResponseWriter, r *http.Request) {
 // getBlockchainInfo: endpoint to get the blockchain info
 func getBlockchainInfo(w http.ResponseWriter, r *http.Request) {
     fmt.Println("getBlockchainInfo request") 
-    const command string = "getblockchaininfo 2"
-    manageOrcaNet.callBtcctlCmd(command)
-   
+    const command string = "getblockchaininfo"
+    stdout :=  manageOrcaNet.CallBtcctlCmd(command)
+    // return the output of CallBtcctlCommand back to the querier 
+    io.WriteString(w, stdout)
 }
 
 // startOrcaNet: starts an OrcaNet full node instance for the server to communicate with

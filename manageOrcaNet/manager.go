@@ -32,12 +32,20 @@ func Start() error {
     return nil
 } 
 
-// callBtcctlCmd: calls a Btcctl command Exactly as specified in string param
+// callBtcctlCmd: calls a Btcctl command Exactly as specified in string param, and returns the stdout of btcctl as a string 
 // its a singular string, but you can pass as many arguments, we will split the arguments in this fn
-func callBtcctlCmd(cmd string) error  {
-    params :=  strings.Split(cmd, " ") 
+func CallBtcctlCmd(cmdStr string) string {
+    params :=  strings.Split(cmdStr, " ") 
     fmt.Println(params)
-    return nil
+    cmd := exec.Command(btcctlPath, params...)
+    // get the stdout of cmd, CAN HANG but shouldn't be a problem in a btcctl command
+    stdout, err := cmd.CombinedOutput() 
+    if err != nil {
+        fmt.Println("failed to execute Btcctl command")
+        return ""
+    }
+    fmt.Println(err);
+    return string(stdout)
 }
 
 
