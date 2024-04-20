@@ -23,6 +23,14 @@ func getHello(w http.ResponseWriter, r *http.Request) {
     io.WriteString(w, "Hello, HTTP!\n")
 }
 
+// getBlockchainInfo: endpoint to get the blockchain info
+func getBlockchainInfo(w http.ResponseWriter, r *http.Request) {
+    fmt.Println("getBlockchainInfo request") 
+    const command string = "getblockchaininfo 2"
+    manageOrcaNet.callBtcctlCmd(command)
+   
+}
+
 // startOrcaNet: starts an OrcaNet full node instance for the server to communicate with
 func startOrcaNet() (error) {
    return manageOrcaNet.Start()
@@ -31,6 +39,7 @@ func startOrcaNet() (error) {
 func main() {
     http.HandleFunc("/", getRoot)
     http.HandleFunc("/hello", getHello)
+    http.HandleFunc("/getBlockchainInfo", getBlockchainInfo)
     fmt.Println("starting orcanet")
     startOrcaNet()    
     err := http.ListenAndServe(":3333", nil)
