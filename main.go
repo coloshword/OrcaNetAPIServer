@@ -5,6 +5,7 @@ import (
     "io"
     "net/http"
     "errors"
+    "github.com/coloshword/OrcaNetAPIServer/manageOrcaNet"
 ) 
 
 
@@ -22,12 +23,17 @@ func getHello(w http.ResponseWriter, r *http.Request) {
     io.WriteString(w, "Hello, HTTP!\n")
 }
 
+// startOrcaNet: starts an OrcaNet full node instance for the server to communicate with
+func startOrcaNet() (error) {
+   return manageOrcaNet.Start()
+}
+
 func main() {
     http.HandleFunc("/", getRoot)
     http.HandleFunc("/hello", getHello)
-
+    fmt.Println("starting orcanet")
+    startOrcaNet()    
     err := http.ListenAndServe(":3333", nil)
-    
     if errors.Is(err, http.ErrServerClosed) {
         fmt.Println("server is closed")
     } else if err != nil {
