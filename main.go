@@ -23,6 +23,7 @@ func main() {
     http.HandleFunc("/getBlockchainInfo", getBlockchainInfo)
     http.HandleFunc("/getNewAddress", getNewAddress)
     http.HandleFunc("/getBalance", getBalance)
+    http.HandleFunc("/mine", mine)
     fmt.Println("starting orcanet")
     startOrcaNet()    
     startOrcaWallet()

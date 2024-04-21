@@ -5,6 +5,7 @@ import (
     "io"
     "net/http"
     "github.com/coloshword/OrcaNetAPIServer/manageOrcaNet"
+    "strings"
 )
 // some basic endpoints
 
@@ -49,4 +50,36 @@ func getBalance(w http.ResponseWriter, r *http.Request) {
     fmt.Println(err)
     io.WriteString(w, stdout)
 }
+
+// mine: endpoint to start mining, mining rewards go to the associated wallet on this node 
+func mine(w http.ResponseWriter, r *http.Request) {
+    fmt.Println("Mine endpoint")
+    // to mine, we need to restart the OrcaNet node with --generate and --mingaddr=<newAddress>
+    const getAddressCmd string = "getnewaddress --wallet"
+    stdout, err := manageOrcaNet.CallBtcctlCmd(getAddressCmd)
+    if err != nil {
+        fmt.Println("error getting a new address for mining")
+        io.WriteString(w, "error getting a new address for mining")
+    }
+    //std out is the address
+    address := strings.TrimSpace(stdout)
+    orcaNetParams := []string{"--generate", "--miningaddr=" + address}
+    fmt.Println("orcaParams[0] " + orcaNetParams[0])
+    fmt.Println("orcaParams[1] " + orcaNetParams[1])
+    if err := manageOrcaNet.Start(orcaNetParams...); err != nil {
+        fmt.Println("failed to start mining:", err)
+        http.Error(w, "failed to start mining", http.StatusInternalServerError)
+        return
+    }
+    io.WriteString(w, "Mining successfully started")
+}
+
+// stopMine: endpoint to stop mining
+func stopMine(w http.ResponseWriter, r *http.Request) {
+    fmt.Println("stop mine endpoint")
+}
+
+
+
+
 

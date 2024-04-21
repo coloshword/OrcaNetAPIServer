@@ -13,7 +13,7 @@
      orcaWalletPath string = "../OrcaWallet/btcwallet"
  )
  //startOrcaNet: starts the OrcaNet full node
-func Start() error {
+func Start(params ...string) error {
     // check for the existence of executable
 
     _, err := os.Stat(orcaNetPath)
@@ -21,9 +21,9 @@ func Start() error {
         fmt.Println("Cannot find OrcaNet executable")
         return err
     } 
-
     // we know it exists 
-    cmd := exec.Command(orcaNetPath)
+    cmd := exec.Command(orcaNetPath, params...)
+    fmt.Println(params)
     if err := cmd.Start();  err != nil {
         fmt.Println(err)
         fmt.Println("failed to run")
