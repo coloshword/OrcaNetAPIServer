@@ -12,24 +12,43 @@
      btcctlPath string = "./OrcaNet/cmd/btcctl/btcctl"
      orcaWalletPath string = "./OrcaWallet/btcwallet"
  )
- //startOrcaNet: starts the OrcaNet full node
+
+var cmdProcess *exec.Cmd
+
+//startOrcaNet: starts the OrcaNet full node
 func Start(params ...string) error {
     // check for the existence of executable
-
     _, err := os.Stat(orcaNetPath)
     if os.IsNotExist(err) {
         fmt.Println("Cannot find OrcaNet executable")
         return err
     } 
     // we know it exists 
-    cmd := exec.Command(orcaNetPath, params...)
-    fmt.Println(params)
-    if err := cmd.Start();  err != nil {
-        fmt.Println(err)
-        fmt.Println("failed to run")
-        return nil
+    cmdProcess = exec.Command(orcaNetPath, params...)
+    fmt.Println("Start OrcaNet with params: ", params)
+    if err := cmdProcess.Start();  err != nil {
+        fmt.Println("Failed to start OrcaNet:", err)
+        return err
     }
     fmt.Println("OrcaNet started successfully")
+    return nil
+}
+
+// Stop: ends the running OrcaNet instance if its running
+func Stop() error {
+    if cmdProcess == nil || cmdProcess.Process == nil {
+        fmt.Println("OrcaNet process is not currently running.")
+        return fmt.Errorf("OrcaNet process is not running")
+    }
+
+    fmt.Println("Stopping OrcaNet...")
+    // send interrupt sig
+    if err := cmdProcess.Process.Signal(os.Interrupt); err != nil {
+        fmt.Println("Failed to send interrupt:", err)
+        return err
+    }
+
+    fmt.Println("OrcaNet stopped successfully.")
     return nil
 }
 
@@ -51,6 +70,7 @@ func StartOrcaWallet() error {
     fmt.Println("Wallet started successfully")
     return nil
 }
+
 
 // callBtcctlCmd: calls a Btcctl command Exactly as specified in string param, and returns the stdout of btcctl as a string 
 // its a singular string, but you can pass as many arguments, we will split the arguments in this fn
