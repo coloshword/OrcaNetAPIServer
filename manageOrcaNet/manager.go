@@ -8,9 +8,9 @@
  )
 
  const (
-     orcaNetPath string = "../OrcaNet/OrcaNet"
-     btcctlPath string = "../OrcaNet/cmd/btcctl/btcctl"
-     orcaWalletPath string = "../OrcaWallet/btcwallet"
+     orcaNetPath string = "./OrcaNet/OrcaNet"
+     btcctlPath string = "./OrcaNet/cmd/btcctl/btcctl"
+     orcaWalletPath string = "./OrcaWallet/btcwallet"
  )
  //startOrcaNet: starts the OrcaNet full node
 func Start(params ...string) error {
