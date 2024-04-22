@@ -24,6 +24,7 @@ func main() {
     http.HandleFunc("/getNewAddress", getNewAddress)
     http.HandleFunc("/getBalance", getBalance)
     http.HandleFunc("/mine", mine)
+    http.HandleFunc("/sendToAddress", sendToAddress)
     fmt.Println("starting orcanet")
     startOrcaNet()    
     startOrcaWallet()

@@ -6,6 +6,8 @@ import (
     "net/http"
     "github.com/coloshword/OrcaNetAPIServer/manageOrcaNet"
     "strings"
+	"strconv"
+	"encoding/json"
 )
 // some basic endpoints
 
@@ -30,7 +32,6 @@ func getBlockchainInfo(w http.ResponseWriter, r *http.Request) {
     // return the output of CallBtcctlCommand back to the querier 
     io.WriteString(w, stdout)
 }
-
 // getNewAddress: endpoint to get a new wallet address
 // this wallet address can be used for mining rewards / sending / receiving transactions
 // For security purposes, it is recommended to create a new address everytime 
@@ -65,7 +66,7 @@ func mine(w http.ResponseWriter, r *http.Request) {
     address := strings.TrimSpace(stdout)
     orcaNetParams := []string{"--generate", "--miningaddr=" + address}
     fmt.Println("orcaParams[0] " + orcaNetParams[0])
-    fmt.Println("orcaParams[1] " + :orcaNetParams[1])
+    fmt.Println("orcaParams[1] " + orcaNetParams[1])
     // we need to kill the OrcaNet process first
     if err := manageOrcaNet.Stop(); err != nil {
         fmt.Println("failed to end OrcaNet:", err)
@@ -79,6 +80,55 @@ func mine(w http.ResponseWriter, r *http.Request) {
     }
     io.WriteString(w, "Mining successfully started")
 }
+
+// sendToAddress: endpoint to send n coins to an address
+// if you want to send coins to a specific wallet, ask the recepient to getNewAddress and pass that address to the query string 
+// Usage: make a JSON request with 2 fields "coins" and "address"
+func sendToAddress(w http.ResponseWriter, r *http.Request) {
+	var request struct {
+		Coins	string `json:"coins"`
+		Address string `json:"address"`
+	}
+    fmt.Println("send to address endpoint")
+    if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+        http.Error(w, "Error reading request body", http.StatusBadRequest)
+        return
+    }
+    if request.Coins == "" || request.Address == "" {
+        http.Error(w, "Missing coins or address in request", http.StatusBadRequest)
+        return
+    }
+
+    if _, err := strconv.ParseFloat(request.Coins, 64); err != nil {
+        http.Error(w, "Invalid number format for coins", http.StatusBadRequest)
+        return
+    }   
+	 err := sendCoins(request.Coins, request.Address, w)
+    if err != nil {
+		fmt.Println("error sending coins")
+        http.Error(w, "Internal server error", http.StatusInternalServerError)
+        return
+    }
+    fmt.Println("coins: " + request.Coins + "address " + request.Address)
+
+    fmt.Fprintf(w, "Successfully sent %s coins to %s\n", request.Coins, request.Address)
+
+	
+}
+
+func sendCoins(numCoins, address string, w http.ResponseWriter) error {
+    command := fmt.Sprintf("--wallet sendtoaddress \"%s\" %s", address, numCoins)
+    stdout, err := manageOrcaNet.CallBtcctlCmd(command)
+    if err != nil {  
+        fmt.Println(err)
+        io.WriteString(w, "error sending coins")
+        return err
+    }
+    io.WriteString(w, stdout)
+    return nil
+}
+
+
 
 // stopMine: endpoint to stop mining
 func stopMine(w http.ResponseWriter, r *http.Request) {
