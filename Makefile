@@ -1,15 +1,29 @@
-all: orcanet orcawallet btcctl 
+.PHONY: all orcanet orcawallet btcctl OrcaNetAPIServer clean
+
+all: orcanet orcawallet btcctl OrcaNetAPIServer
+
+OrcaNetAPIServer:
+	@echo "Building OrcaNetAPIServer..."
+	@go build -v
+	@echo "Built OrcaNetAPIServer successfully."
 
 orcanet:
 	@echo "Building OrcaNet..."
-	@go build
-	@cd OrcaNet && go build
+	@cd OrcaNet && go build -v
+	@echo "Built OrcaNet successfully."
 
 orcawallet:
-	@cd OrcaWallet && go build
+	@echo "Building OrcaWallet..."
+	@cd OrcaWallet && go build -v
+	@echo "Built OrcaWallet successfully."
 
 btcctl:
-	@cd OrcaNet && cd cmd && cd btcctl && go build
+	@echo "Building btcctl..."
+	@cd OrcaNet/cmd/btcctl && go build -v
+	@echo "Built btcctl successfully."
 
 clean:
-	rm -f OrcaNet/OrcaNet OrcaWallet/btcdwallet OrcaNet/cmd/btcctl/btcctl OrcaNetAPIServer
+	@echo "Cleaning up..."
+	@rm -f OrcaNet/OrcaNet OrcaWallet/btcwallet OrcaNet/cmd/btcctl/btcctl OrcaNetAPIServer
+	@echo "Clean up done."
+
