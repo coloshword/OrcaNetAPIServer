@@ -63,6 +63,7 @@ func printOutput(r io.Reader) {
 
 
 // Stop: ends the running OrcaNet instance if its running
+//TO DO: right now it sleeps for 5 seconds instead of just waiting for the interrupt (fix this)
 func Stop() error {
     if cmdProcess == nil || cmdProcess.Process == nil {
         fmt.Println("OrcaNet process is not currently running.")
