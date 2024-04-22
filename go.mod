@@ -1,6 +1,6 @@
 module github.com/coloshword/OrcaNetAPIServer
 
-go 1.22.0
+go 1.22
 
 require github.com/coloshword/OrcaNet v0.0.0-20240419181245-c57e4b41e85c
 
