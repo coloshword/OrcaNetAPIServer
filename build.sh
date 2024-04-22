@@ -5,9 +5,11 @@ echo "Launching OrcaNet to initialize..."
 ORCANET_PID=$!
 
 # Wait for 1 second before killing OrcaNet
-sleep 3
+sleep 1
 echo "Stopping OrcaNet..."
 kill $ORCANET_PID
+sleep 2
 clear
 echo "Checking if wallet exists, will prompt creation if not created"
 ./OrcaWallet/btcwallet --create
+echo "Build complete"
