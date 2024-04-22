@@ -5,6 +5,9 @@
      "os"
      "os/exec"
      "strings"
+     "bufio"
+     "time"
+     "io"
  )
 
  const (
@@ -14,25 +17,48 @@
  )
 
 var cmdProcess *exec.Cmd
-
-//startOrcaNet: starts the OrcaNet full node
 func Start(params ...string) error {
-    // check for the existence of executable
     _, err := os.Stat(orcaNetPath)
     if os.IsNotExist(err) {
         fmt.Println("Cannot find OrcaNet executable")
         return err
-    } 
-    // we know it exists 
+    }
+
     cmdProcess = exec.Command(orcaNetPath, params...)
+
+    stdout, err := cmdProcess.StdoutPipe()
+    if err != nil {
+        return fmt.Errorf("failed to create stdout pipe: %w", err)
+    }
+    stderr, err := cmdProcess.StderrPipe()
+    if err != nil {
+        return fmt.Errorf("failed to create stderr pipe: %w", err)
+    }
+
     fmt.Println("Start OrcaNet with params: ", params)
     if err := cmdProcess.Start();  err != nil {
         fmt.Println("Failed to start OrcaNet:", err)
         return err
     }
     fmt.Println("OrcaNet started successfully")
+    go printOutput(stdout)
+    go printOutput(stderr)
+
+
     return nil
 }
+
+
+func printOutput(r io.Reader) {
+    scanner := bufio.NewScanner(r)
+    for scanner.Scan() {
+        fmt.Println(scanner.Text())
+    }
+    if err := scanner.Err(); err != nil {
+        fmt.Printf("Error reading stream: %v\n", err)
+    }
+}
+
 
 // Stop: ends the running OrcaNet instance if its running
 func Stop() error {
@@ -47,7 +73,7 @@ func Stop() error {
         fmt.Println("Failed to send interrupt:", err)
         return err
     }
-
+    time.Sleep(5)
     fmt.Println("OrcaNet stopped successfully.")
     return nil
 }
