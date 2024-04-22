@@ -65,7 +65,7 @@ func mine(w http.ResponseWriter, r *http.Request) {
     address := strings.TrimSpace(stdout)
     orcaNetParams := []string{"--generate", "--miningaddr=" + address}
     fmt.Println("orcaParams[0] " + orcaNetParams[0])
-    fmt.Println("orcaParams[1] " + orcaNetParams[1])
+    fmt.Println("orcaParams[1] " + :orcaNetParams[1])
     // we need to kill the OrcaNet process first
     if err := manageOrcaNet.Stop(); err != nil {
         fmt.Println("failed to end OrcaNet:", err)

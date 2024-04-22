@@ -1,15 +1,33 @@
-## API Server wrapper for OrcaNet(full node) and the OrcaWallet, and Btcctl 
+# API Server wrapper for OrcaNet(full node) and the OrcaWallet, and Btcctl 
+## Overview 
+Running this program creates an HTTP server, and also runs btcd and btcwallet in the background for you. Since it is an HTTP server, all you have to do is run the executable from your code, such as using `os/exec` in Go, or `subprocess` in Python. After that, just make requests from your language of choice.
+### Usage 
+1) run `./build.sh`. This builds the project and also prompts you to create a wallet if you don't have one. If you already have a wallet, it'll just tell you it already exists
 
-### Goals
-Create an HTTP server with a start function that another program can call. This server can be started by calling this function, and then you can just interact with the full node, wallet directly by sending HTTP requests.
+2) Run the server executable `OrcaNetAPIServer`. You can do this in the terminal by running `./OrcaNetAPIServer`, but you probably want to run it as part of your program. Here's a simple example using Go:
 
-### Why
-The other blockchain group already went with the executable interact with the cli approach. It doesn't make sense for us to the same work. This method also has the advantage of letting us create an instance running on a server that would allow front end web applications to directly query the server for blockchain information, without having to run a local full node.
+```Go
+import (
+    "os/exec"
+)
 
-### Usage
-First go into the subdirectories:'/OrcaNet' and '/OrcaWallet' and build them by running: 'go build'
-Second, build the main repository, by running 'go build' in the root dir. This will create an executable 'OrcaNetAPIServer', and you can run this in your program using OS/exec.
+const executablePath string = <PATH TO OrcaNetAPIServer>
+cmd := exec.Command(executablePath)
+cmd.Start()
 
+```
 
-### Important:
-This repository does not track OrcaNet or OrcaWallet because it's meant to be an indendent component without outside imports. If you change OrcaNet or OrcaWallet, you must manually update the Orcanet and OrcaWallet versions in this repository.
+3) Make requests to the list of endpoints below. You can test if the server is running using:
+`curl http://localhost:3333/getBalance`
+
+### Endpoints 
+The port used is 3333 by the way.
+
+`http://localhost:3333/getBlockchainInfo` --> Returns the information of the blockchain as a string. 
+
+`http://localhost:3333/getNewAddress` --> Creates a new recipient address for the currently running wallet. You can use this to create an address for mining rewards, or for a transaction, for example. 
+
+`http://localhost:3333/getBalance` --> Gets the balance of the currently running wallet.
+
+`http://localhost:3333/mine` --> Turns the background OrcaNet node into a mining node. Mining rewards will go to the associated wallet (the one running on your system)
+
