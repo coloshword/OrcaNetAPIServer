@@ -34,3 +34,13 @@ The port used is 3333 by the way.
 
 `http://localhost:3333/mine` --> Turns the background OrcaNet node into a mining node. Mining rewards will go to the associated wallet (the one running on your system)
 
+`http://localhost:3333/sendToAddress` --> Takes a JSON object of the form:
+```json
+{ 
+    "coins": "<num-coins>",
+    "address": "<recipient-address>",
+    "senderwalletpass": "<password to unlock wallet"
+}
+```
+It sends `num-coins` to `recipient-address` by first using `senderwalletpass` to unlock the wallet
+

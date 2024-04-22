@@ -85,64 +85,56 @@ func mine(w http.ResponseWriter, r *http.Request) {
 // if you want to send coins to a specific wallet, ask the recepient to getNewAddress and pass that address to the query string 
 // Usage: make a JSON request with 2 fields "coins" and "address"
 func sendToAddress(w http.ResponseWriter, r *http.Request) {
-	var request struct {
-		Coins	string `json:"coins"`
-		Address string `json:"address"`
+    var request struct {
+        Coins           string `json:"coins"`
+        Address         string `json:"address"`
         SenderWalletPass string `json:"senderwalletpass"`
-	}
-    fmt.Println("send to address endpoint")
+    }
     if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
         http.Error(w, "Error reading request body", http.StatusBadRequest)
         return
     }
-    if request.Coins == "" || request.Address == "" {
-        http.Error(w, "Missing coins or address in request", http.StatusBadRequest)
+
+    if request.Coins == "" || request.Address == "" || request.SenderWalletPass == "" {
+        http.Error(w, "Missing fields in request", http.StatusBadRequest)
         return
     }
 
     if _, err := strconv.ParseFloat(request.Coins, 64); err != nil {
         http.Error(w, "Invalid number format for coins", http.StatusBadRequest)
         return
-    }   
-    // unlock the wallet first 
-    err := unlockWallet(request.SenderWalletPass, w)
-    if err != nil {
-        fmt.Println("failed to unlock wallet, wallet sender pass likely wrong ")
-        http.Error(w, "error unlocking wallet", http.StatusInternalServerError)
     }
-	err2 := sendCoins(request.Coins, request.Address, w)
-    if err2 != nil {
-		fmt.Println("error sending coins")
-        http.Error(w, "Internal server error", http.StatusInternalServerError)
+
+    if err := unlockWallet(request.SenderWalletPass); err != nil {
+        fmt.Printf("Failed to unlock wallet: %v\n", err)
+        http.Error(w, "Error unlocking wallet", http.StatusInternalServerError)
         return
     }
-    fmt.Println("coins: " + request.Coins + "address " + request.Address)
+
+    if err := sendCoins(request.Coins, request.Address); err != nil {
+        fmt.Printf("Error sending coins: %v\n", err)
+        http.Error(w, "Error sending coins", http.StatusInternalServerError)
+        return
+    }
 
     fmt.Fprintf(w, "Successfully sent %s coins to %s\n", request.Coins, request.Address)
-
-	
 }
 
-func unlockWallet(walletPass string, w http.ResponseWriter) error {
-    command := fmt.Sprintf("--wallet walletpassphrase \"%s\" 100", walletPass)
+func unlockWallet(walletPass string) error {
+    command := fmt.Sprintf("--wallet walletpassphrase %s 100", walletPass)
     stdout, err := manageOrcaNet.CallBtcctlCmd(command)
     if err != nil {
-        fmt.Println(err)
-        io.WriteString(w, "error unlocking wallet")
-        return err
+        return fmt.Errorf("Failed to unlock wallet: %s, error: %v", stdout, err)
     }
-    io.WriteString(w, stdout)
     return nil
 }
-func sendCoins(numCoins, address string, w http.ResponseWriter) error {
+
+func sendCoins(numCoins, address string) error {
     command := fmt.Sprintf("--wallet sendtoaddress %s %s", address, numCoins)
     stdout, err := manageOrcaNet.CallBtcctlCmd(command)
-    if err != nil {  
-        fmt.Println(err)
-        io.WriteString(w, "error sending coins")
-        return err
+    if err != nil {
+        return fmt.Errorf("Failed to send coins: %s, error: %v", stdout, err)
     }
-    io.WriteString(w, stdout)
     return nil
 }
 
