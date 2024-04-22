@@ -88,6 +88,7 @@ func sendToAddress(w http.ResponseWriter, r *http.Request) {
 	var request struct {
 		Coins	string `json:"coins"`
 		Address string `json:"address"`
+        SenderWalletPass string `json:"senderwalletpass"`
 	}
     fmt.Println("send to address endpoint")
     if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
@@ -103,8 +104,14 @@ func sendToAddress(w http.ResponseWriter, r *http.Request) {
         http.Error(w, "Invalid number format for coins", http.StatusBadRequest)
         return
     }   
-	 err := sendCoins(request.Coins, request.Address, w)
+    // unlock the wallet first 
+    err := unlockWallet(request.SenderWalletPass, w)
     if err != nil {
+        fmt.Println("failed to unlock wallet, wallet sender pass likely wrong ")
+        http.Error(w, "error unlocking wallet", http.StatusInternalServerError)
+    }
+	err2 := sendCoins(request.Coins, request.Address, w)
+    if err2 != nil {
 		fmt.Println("error sending coins")
         http.Error(w, "Internal server error", http.StatusInternalServerError)
         return
@@ -116,8 +123,19 @@ func sendToAddress(w http.ResponseWriter, r *http.Request) {
 	
 }
 
+func unlockWallet(walletPass string, w http.ResponseWriter) error {
+    command := fmt.Sprintf("--wallet walletpassphrase \"%s\" 100", walletPass)
+    stdout, err := manageOrcaNet.CallBtcctlCmd(command)
+    if err != nil {
+        fmt.Println(err)
+        io.WriteString(w, "error unlocking wallet")
+        return err
+    }
+    io.WriteString(w, stdout)
+    return nil
+}
 func sendCoins(numCoins, address string, w http.ResponseWriter) error {
-    command := fmt.Sprintf("--wallet sendtoaddress \"%s\" %s", address, numCoins)
+    command := fmt.Sprintf("--wallet sendtoaddress %s %s", address, numCoins)
     stdout, err := manageOrcaNet.CallBtcctlCmd(command)
     if err != nil {  
         fmt.Println(err)

@@ -76,7 +76,7 @@ func Stop() error {
         fmt.Println("Failed to send interrupt:", err)
         return err
     }
-    time.Sleep(5)
+    time.Sleep(5 * time.Second)
     fmt.Println("OrcaNet stopped successfully.")
     return nil
 }

@@ -5,7 +5,7 @@ echo "Launching OrcaNet to initialize..."
 ORCANET_PID=$!
 
 # Wait for 1 second before killing OrcaNet
-sleep 1
+sleep 3
 echo "Stopping OrcaNet..."
 kill $ORCANET_PID
 clear
