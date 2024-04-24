@@ -4,7 +4,6 @@ Running this program creates an HTTP server, and also runs btcd and btcwallet in
 ### Usage 
 IMPORTANT: If you previously ran btcd or another team's blockchain, you need to remove btcwallet and btcd folders, or you won't be able to connect to the bootstrap node. On MacOS they are in `Library/Application\ Support/`
 
-Make sure you can run `make` commands
 1) run `./build.sh`. This builds the project and also prompts you to create a wallet if you don't have one. If you already have a wallet, it'll just tell you it already exists
 
 2) Run the server executable `OrcaNetAPIServer`. You can do this in the terminal by running `./OrcaNetAPIServer`, but you probably want to run it as part of your program. Here's a simple example using Go:
