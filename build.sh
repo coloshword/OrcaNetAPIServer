@@ -1,5 +1,8 @@
 echo "Building the project..."
-make all
+cd ./server && go build && cd ..
+cd ./OrcaNet && go build && cd ..  
+cd ./OrcaWallet && go build && cd ..
+cd ./OrcaNet/cmd/btcctl && go build && cd ../../..
 echo "Launching OrcaNet to initialize..."
 ./OrcaNet/OrcaNet &
 ORCANET_PID=$!
