@@ -12,21 +12,38 @@
      "io"
  )
 
- const (
+
+// we need to get the execPath so that we can run the other executables regardless what the PWD is
+func getExePath() (string, error) {
+    exePath, err := os.Executable()
+    if err != nil {
+        fmt.Println("Could not find OrcaNetAPIServer executable")
+        return "", err
+    }
+    return exePath, nil
+}
+
+const (
      orcaNetPath string = "./OrcaNet/OrcaNet"
      btcctlPath string = "./OrcaNet/cmd/btcctl/btcctl"
      orcaWalletPath string = "./OrcaWallet/btcwallet"
  )
 
 var cmdProcess *exec.Cmd
+
 func Start(params ...string) error {
-    _, err := os.Stat(orcaNetPath)
+    exePath, err := getExePath();
+    if err != nil {
+        return err;
+    }
+    var orcaNetFullPath = filepath.Join(exePath, "..", "..", orcaNetPath)
+    _, err = os.Stat(orcaNetFullPath)
     if os.IsNotExist(err) {
         fmt.Println("Cannot find OrcaNet executable")
         return err
     }
 
-    cmdProcess = exec.Command(orcaNetPath, params...)
+    cmdProcess = exec.Command(orcaNetFullPath, params...)
 
     stdout, err := cmdProcess.StdoutPipe()
     if err != nil {
@@ -83,14 +100,20 @@ func Stop() error {
 
 //startOrcaWallet: starts the OrcaWallet
 func StartOrcaWallet() error {
+    // get path relative to executable so it can be run anywhere and not just from the location of the exe
+    exePath, err := getExePath();
+    if err != nil {
+        return err;
+    }
+    var walletFullPath = filepath.Join(exePath, "..", "..", orcaWalletPath)
     // check for the existence of the executable 
-    _, err := os.Stat(orcaWalletPath)
+    _, err = os.Stat(walletFullPath)
     if os.IsNotExist(err) {
         fmt.Println("Cannot find Orcawallet executable")
         return err
     }
 
-    cmd := exec.Command(orcaWalletPath)
+    cmd := exec.Command(walletFullPath)
     if err := cmd.Start(); err != nil {
         fmt.Println(err)
         fmt.Println("failed to start wallet executable")
