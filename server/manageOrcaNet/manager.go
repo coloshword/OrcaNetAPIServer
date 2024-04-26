@@ -194,12 +194,24 @@ func CallBtcctlCmd(cmdStr string) (string, error) {
     if err != nil {
         return "", fmt.Errorf("failed to get rpc info")
     }
-    fmt.Println(rpcInfo)
+    // get the bttcl full path
+    exePath, err := getExePath()
+    if err != nil {
+        fmt.Println("error finding APIServer exec")
+        return "", err
+    }
+    
+    var btcctlFullPath = filepath.Join(exePath, "..", "..", btcctlPath)
+    _, err = os.Stat(btcctlFullPath)
+    if os.IsNotExist(err) {
+        fmt.Println("Error finding btcctl full path")
+        return "", err 
+    }
     params :=  strings.Split(cmdStr, " ") 
     params = append(params, "--rpcuser=" + strings.TrimSpace(rpcInfo[0]) + "=", "--rpcpass=" + strings.TrimSpace(rpcInfo[1]) + "=")
 
     fmt.Println(params)
-    cmd := exec.Command(btcctlPath, params...)
+    cmd := exec.Command(btcctlFullPath, params...)
     // get the stdout of cmd, CAN HANG but shouldn't be a problem in a btcctl command
     stdout, err := cmd.CombinedOutput() 
     if err != nil {

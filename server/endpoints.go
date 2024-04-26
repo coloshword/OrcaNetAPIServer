@@ -51,6 +51,14 @@ func getBalance(w http.ResponseWriter, r *http.Request) {
     fmt.Println(err)
     io.WriteString(w, stdout)
 }
+// getPeerInfo: gets the peer info 
+func getPeerInfo(w http.ResponseWriter, r *http.Request) {
+    fmt.Println("Get peer endpoint")
+    const command string = "getpeerinfo"
+    stdout, err := manageOrcaNet.CallBtcctlCmd(command)
+    fmt.Println(err)
+    io.WriteString(w, stdout)
+}
 
 // mine: endpoint to start mining, mining rewards go to the associated wallet on this node 
 func mine(w http.ResponseWriter, r *http.Request) {
