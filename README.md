@@ -20,7 +20,7 @@ cmd.Start()
 ```
 
 3) Make requests to the list of endpoints below. You can test if the server is running using:
-`curl http://localhost:3333/getBalance`
+`curl http://localhost:3333/getBalance`. A note on transfers: transferring an amount of coins fewer than 50 coins will result in you initially "losing" 50 coins. After the next block is mined however, the actual amounts are updated. 
 
 ### Endpoints 
 The port used is 3333 by the way.
