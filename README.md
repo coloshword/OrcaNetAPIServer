@@ -1,4 +1,8 @@
 # API Server wrapper for OrcaNet(full node) and the OrcaWallet, and Btcctl 
+
+To get started with running btcd and btcwallet, navigate into the coin directory:
+`cd coin`
+
 ## Overview 
 Running this program creates an HTTP server, and also runs btcd and btcwallet in the background for you. Since it is an HTTP server, all you have to do is run the executable from your code, such as using `os/exec` in Go, or `subprocess` in Python. After that, just make requests from your language of choice.
 ### Usage 
@@ -20,7 +24,7 @@ cmd.Start()
 ```
 
 3) Make requests to the list of endpoints below. You can test if the server is running using:
-`curl http://localhost:3333/getBalance`. A note on transfers: transferring an amount of coins fewer than 50 coins will result in you initially "losing" 50 coins. After the next block is mined however, the actual amounts are updated. 
+`curl http://localhost:3333/getBalance`
 
 ### Endpoints 
 The port used is 3333 by the way.
@@ -43,3 +47,64 @@ The port used is 3333 by the way.
 ```
 It sends `num-coins` to `recipient-address` by first using `senderwalletpass` to unlock the wallet
 
+`http://localhost:3333/getPeerInfo` --> Returns information of all peers connected to this node (ip, last send, last receive, etc...) in JSON format
+
+```json
+  {
+    "id": ,
+    "addr": ,
+    "addrlocal": ,
+    "services": ,
+    "relaytxes": ,
+    "lastsend": ,
+    "lastrecv": ,
+    "bytessent": ,
+    "bytesrecv": ,
+    "conntime": ,
+    "timeoffset": ,
+    "pingtime": ,
+    "version": ,
+    "subver": ,
+    "inbound": ,
+    "startingheight": ,
+    "currentheight": ,
+    "banscore": ,
+    "feefilter": ,
+    "syncnode":
+  }
+```
+
+`http://localhost:3333/getBestBlock` --> Returns the hash and block height number of the best (most recently mined) block in JSON format. 
+
+```json
+{
+    "hash":,
+    "height":,
+}
+```
+
+`http://localhost:3333/getBestBlockInfo` --> Returns the info of the best(most recent) block
+
+```json
+{
+  "hash": "00000000d003d6d26d3d51c6b0e39180c9ffe69386be33dc4e2f9eaeb914f458",
+  "confirmations": 1,
+  "strippedsize": 189,
+  "size": 189,
+  "weight": 756,
+  "height": 99,
+  "version": 536870912,
+  "versionHex": "20000000",
+  "merkleroot": "89a5f8fdb15df6a4a0545503d4963f8801ea7d771cdca29a33dd9cf78218ed59",
+  "tx": [
+    "89a5f8fdb15df6a4a0545503d4963f8801ea7d771cdca29a33dd9cf78218ed59"
+  ],
+  "time": 1714508126,
+  "nonce": 1066119017,
+  "bits": "1d00ffff",
+  "difficulty": 1,
+  "previousblockhash": "000000001d0bd78d22bf186e19ecc68ce72d5f227d0268654a1005abc15081bf"
+}
+```
+
+`http://localhost:3333/stopMine` --> Restarts the OrcaNet node to a non mining instance. 
